@@ -118,7 +118,10 @@ def make_financial_factor(start_date, end_date, factor, test_mode=False):
         factor_method = "ttm"
     elif factor in ['total_assets', 'total_equities_exc_min', 'total_equities_inc_min',
                     'noncur_liabilities', 'total_liabilities',
-                    'longterm_loan', 'bonds_payable', 'longterm_payable', 'preferred_stock']:
+                    'longterm_loan', 'bonds_payable', 'longterm_payable', 'preferred_stock',
+                    "cash", "tradable_financialasset", "notes_receiveable", "accounts_receivable",
+                    "inventory", "fixed_asset", "construction_inprogress", "intangible_asset",
+                    "development_expenditure", "goodwill", "notes_payable", "accounts_payable"]:
         dataPort = balance_sheet
         factor_method = "latest"
     elif factor == "operating_cashflow":
@@ -130,7 +133,6 @@ def make_financial_factor(start_date, end_date, factor, test_mode=False):
                 continue
             codes = [record["S_INFO_WINDCODE"], ]
             date_range = dataPort.calendar(record["start_dt"], record["end_dt"])
-            # print(codes, date_range)
             factor_values, snapshots, _, _ = dataPort.raw(codes, date_range, factor, factor_method=factor_method)
             df = pd.DataFrame(index=factor_values.index)
             df[factor] = factor_values.iloc[:, 0]
@@ -146,7 +148,10 @@ def make_financial_factor(start_date, end_date, factor, test_mode=False):
     factor_df["tradeday"] = factor_df.index
     factor_df.index = range(factor_df.shape[0])
     factor_df = factor_df[["tradeday", "ticker", factor, factor + "_snapshots"]]
-    if factor in ["longterm_loan", "bonds_payable", "longterm_payable", "preferred_stock"]:
+    if factor in ["longterm_loan", "bonds_payable", "longterm_payable", "preferred_stock",
+                  "cash", "tradable_financialasset", "notes_receiveable", "accounts_receivable",
+                  "inventory", "fixed_asset", "construction_inprogress", "intangible_asset",
+                  "development_expenditure", "goodwill", "notes_payable", "accounts_payable"]:
         # In this circumstance, None or NaN mean not missing but 0 in the financial statements
         print("fill out NaN and None")
         factor_df[factor] = factor_df[factor].apply(lambda x: 0 if pd.isna(x) else x)

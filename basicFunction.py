@@ -2,6 +2,7 @@ import cx_Oracle
 import numpy as np
 import pandas as pd
 import datetime as dt
+import sys
 
 
 class OracleSql(object):
@@ -687,8 +688,14 @@ def parse_suspend_type(code: np.int64) -> str:
     else:
         raise ValueError("停牌类型代码错误: " + str(code))
 
-
-
+def confirm() -> None:
+    '''
+    Confirm before inserting or updating.
+    :return: None
+    '''
+    confirm = input('''Please input the word "confirm" to confirm the inserting or updating operation.\n>>>''')
+    if confirm != "confirm":
+        sys.exit()
 
 
 

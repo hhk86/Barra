@@ -178,20 +178,42 @@ class BalanceDataPort(object):
             return "TOT_SHRHLDR_EQY_EXCL_MIN_INT"
         elif factor == 'total_equities_inc_min': # 股东权益-含少数股东权益
             return 'TOT_SHRHLDR_EQY_INCL_MIN_INT'
-        elif factor == "noncur_liabilities": #
+        elif factor == "noncur_liabilities": # 非流动性负债
             return "TOT_NON_CUR_LIAB"
         elif factor == "total_liabilities": # 总负债-即负债科目
             return "TOT_LIAB"
-        # elif factor == "total_share": #
-        #     return "TOT_SHR"
-        elif factor == 'longterm_loan':
+        elif factor == 'longterm_loan': # 长期负债
             return 'LT_BORROW'
-        elif factor == 'bonds_payable':
+        elif factor == 'bonds_payable': # 应付贷款
             return 'BONDS_PAYABLE'
-        elif factor == 'longterm_payable':
+        elif factor == 'longterm_payable': # 长期应付款
             return 'LT_PAYABLE'
-        elif factor == 'preferred_stock':
+        elif factor == 'preferred_stock': # 优先股
             return 'OTHER_EQUITY_TOOLS_P_SHR'
+        elif factor == "cash":  #货币资金
+            return "MONETARY_CAP"
+        elif factor == "tradable_financialasset": # 交易性金融资产
+            return "TRADABLE_FIN_ASSETS"
+        elif factor == "notes_receiveable": # 应收票据
+            return "NOTES_RCV"
+        elif factor == "accounts_receivable": # 应收账款
+            return "ACCT_RCV"
+        elif factor == "inventory": # 存货
+            return "INVENTORIES"
+        elif factor == "fixed_asset": # 固定资产
+            return "FIX_ASSETS"
+        elif factor == "construction_inprogress": # 在建工程
+            return "CONST_IN_PROG"
+        elif factor == "intangible_asset": # 无形资产
+            return "INTANG_ASSETS"
+        elif factor == "development_expenditure": # 开发支出
+            return "R_AND_D_COSTS"
+        elif factor == "goodwill": # 商誉
+            return "GOODWILL"
+        elif factor == "notes_payable": #应付票据
+            return "NOTES_PAYABLE"
+        elif factor == "accounts_payable": #应付账款
+            return "ACCT_PAYABLE"
 
     def _generate_season_table(self, min_date, max_date):
         d0 = self._nearby_season_month(min_date, -1)
