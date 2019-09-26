@@ -2,6 +2,7 @@ from raw import *
 import cx_Oracle
 import numpy as np
 import pandas as pd
+from multiprocessing import Process, Queue, Value
 
 
 class OracleSql(object):
@@ -98,6 +99,30 @@ def get_all_available_stocks(start_date:str, end_date:str) -> pd.DataFrame:
     return all_available_stocks
 
 
+def subMakeFactor(stock_slice: pd.DataFrame, dataPort, factor: str,  factor_method: str, q: Queue, i: Value):
+    factor_df = pd.DataFrame(columns=[factor, "ticker"])
+    for _, record in stock_slice.iterrows():
+        try:
+            if record["S_INFO_WINDCODE"] == "000498.SZ":
+                continue
+            codes = [record["S_INFO_WINDCODE"], ]
+            date_range = dataPort.calendar(record["start_dt"], record["end_dt"])
+            factor_values, snapshots, _, _ = dataPort.raw(codes, date_range, factor, factor_method=factor_method)
+            df = pd.DataFrame(index=factor_values.index)
+            df[factor] = factor_values.iloc[:, 0]
+            df[factor + "_snapshots"] = snapshots.iloc[:, 0]
+            df["ticker"] = codes[0]
+            factor_df = factor_df.append(df)
+            i.value += 1
+            print('\rMaking financial factor ' + str(i.value), end= " ")
+        except Exception as e:
+            print(codes)
+            print(date_range)
+            raise (e)
+    q.put(factor_df)
+
+
+
 def make_financial_factor(start_date, end_date, factor, test_mode=False):
     pd.set_option("display.max_columns", None)
     all_available_stocks = get_all_available_stocks(start_date, end_date)
@@ -131,6 +156,8 @@ def make_financial_factor(start_date, end_date, factor, test_mode=False):
                     "investment_cashflow", "finance_cashinflow", "finance_cashoutflow", "finance_cashflow"]:
         dataPort = cashflow_statement
         factor_method = "ttm"
+
+
     for _, record in all_available_stocks.iterrows():
         try:
             if record["S_INFO_WINDCODE"] == "000498.SZ":
@@ -149,6 +176,29 @@ def make_financial_factor(start_date, end_date, factor, test_mode=False):
             print(codes)
             print(date_range)
             raise (e)
+
+    # Multiprocess part
+    #
+    # n = 2
+    # q = Queue()
+    # i = Value("d", 0)
+    # jobs = list()
+    # N = len(all_available_stocks)
+    # for j in range(0, n):
+    #     stock_slice = all_available_stocks.iloc[N * j // n : N * (j + 1) // n, :]
+    #     p = Process(target=subMakeFactor, args=(stock_slice, dataPort, factor, factor_method, q, i))
+    #     jobs.append(p)
+    #     p.start()
+    #     print("Start Process", i)
+    # for i in range(0, n):
+    #     factor_df = factor_df.append(q.get())
+    # for job in jobs:
+    #     job.join()
+    # print(factor_df)
+
+
+
+
     factor_df["tradeday"] = factor_df.index
     factor_df.index = range(factor_df.shape[0])
     factor_df = factor_df[["tradeday", "ticker", factor, factor + "_snapshots"]]
@@ -157,7 +207,9 @@ def make_financial_factor(start_date, end_date, factor, test_mode=False):
                   "inventory", "fixed_asset", "construction_inprogress", "intangible_asset",
                   "development_expenditure", "goodwill", "notes_payable", "accounts_payable",
                   "revenue", "total_opcost", "operating_cost", "sale_expense",
-                  "management_expense", "research_expense", "financial_expense", "operating_profit"]:
+                  "management_expense", "research_expense", "financial_expense", "operating_profit",
+                  "operating_cashinflow", "operating_cashoutflow", "investment_cashinflow", "investment_cashoutflow",
+                  "investment_cashflow", "finance_cashinflow", "finance_cashoutflow", "finance_cashflow"]:
         # In this circumstance, None or NaN mean not missing but 0 in the financial statements
         print("fill out NaN and None")
         factor_df[factor] = factor_df[factor].apply(lambda x: 0 if pd.isna(x) else x)
@@ -175,5 +227,6 @@ def fill_out_na(snapshots):
 
 
 if __name__ == "__main__":
+
     # all_available_stocks["first_letter"] = all_available_stocks["S_INFO_WINDCODE"].apply(lambda s: s[0])
-    print(make_financial_factor("20100101", "20190820", "longterm_loan", test_mode=True))
+    print(make_financial_factor("20090101", "20090228", "notes_receiveable", test_mode=True))

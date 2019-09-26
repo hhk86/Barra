@@ -95,7 +95,7 @@ class IncomeDataPort(object):
 
             snapshots.loc[factor_values.index[0], code] = factor_port.snap(code, factor_port.get_latest_report(code))
 
-        print('Initialization Finished')
+        # print('Initialization Finished')
 
         for ann_date in ann_date_container:
             ipos, eff_date = func.send(ann_date)
@@ -174,11 +174,29 @@ class IncomeDataPort(object):
         return '\'' + '\',\''.join(code_range) + '\''
 
     def _factor2str(self, factor):
-        if factor == 'net_income':
+        if factor == 'net_income': # 净利润
             return 'NET_PROFIT_EXCL_MIN_INT_INC'
-
-        if factor == 'total_revenue':
+        elif factor == 'total_revenue': # 营业总收入
             return 'TOT_OPER_REV'
+        elif factor == "revenue": # 营业收入
+            return "OPER_REV"
+        elif factor == "total_opcost": # 营业总成本
+            return "TOT_OPER_COST"
+        elif factor == "operating_cost": # 营业成本呢
+            return "LESS_OPER_COST"
+        elif factor == "sale_expense": # 销售费用
+            return "LESS_SELLING_DIST_EXP"
+        elif factor == "management_expense": # 管理费用
+            return "LESS_GERL_ADMIN_EXP"
+        elif factor == "research_expense": # 研发费用
+            return "RD_EXPENSE"
+        elif factor == "financial_expense": # 财务费用
+            return "LESS_FIN_EXP"
+        elif factor == "operating_profit": # 营业利润
+            return "OPER_PROFIT"
+
+
+
 
     def _generate_season_table(self, min_date, max_date):
         d0 = self._nearby_season_month(min_date, -1)

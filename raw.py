@@ -210,20 +210,20 @@ if __name__ == '__main__':
     # 这里非常ugly, 实际上, codes(股票范围)和(date_range)应该是外部给定，这里实际上偷懒给放到了income_statement里面了
     income_statement = IncomeDataPort()
     codes = income_statement.universe('20170701')
-    date_range = income_statement.calendar('20170101', '20190815')
+    date_range = income_statement.calendar('20090101', '20190815')
 
     # 利润表的原始值，已考虑了ttm，以及对后续数据更正的调整，即某数据首次发布于2016年8月，后于2017年7月修正
     # 则在2016年8月至2017年7月期间只能使用其首次发布值（即实际上错误的值）
     # 使用：给定factor，例如net_income，同时需在IncomeDataPort._factor2str中，将输入的factor映射为wind数据库中表格
-    factor_values, _, _ = income_statement.raw(codes, date_range, 'net_income', factor_method='ttm')
+    # factor_values, _, _ = income_statement.raw(codes, date_range, 'net_income', factor_method='ttm')
     # 获取天软数据，用于对比（黄泓恺已对比）
     # values = IncomeTs().ttm('net_income2major', codes[:20], min(date_range), max(date_range))
-    print(factor_values.head())
+    # print(factor_values.head())
 
     balance_sheet = BalanceDataPort()
     # 资产负债表的原始值
     # factor_method可以为'avg'或者'latest'，即最新值或平均值
-    factor_values, _, _ = balance_sheet.raw(codes, date_range, 'total_asset', factor_method='avg')
+    factor_values, _, _ = balance_sheet.raw([], date_range, 'notes_receiveable', factor_method='avg')
     # 获取天软数据，用于对比（黄泓恺已对比）
     # values = IncomeTs().ttm('total_asset', codes, min(date_range), max(date_range))
     print(factor_values.head())

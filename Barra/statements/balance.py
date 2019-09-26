@@ -97,7 +97,7 @@ class BalanceDataPort(object):
 
             snapshots.loc[factor_values.index[0], code] = factor_port.snap(code, factor_port.get_latest_report(code))
 
-        print('Initialization Finished')
+        # print('Initialization Finished')
 
         for ann_date in ann_date_container:
             ipos, eff_date = func.send(ann_date)
@@ -260,3 +260,5 @@ class BalanceDataPort(object):
         with self.oracle as orc:
             data = orc.query(sql).squeeze().tolist()
         return data
+
+

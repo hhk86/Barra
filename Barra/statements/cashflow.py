@@ -95,7 +95,7 @@ class CashflowDataPort(object):
 
             snapshots.loc[factor_values.index[0], code] = factor_port.snap(code, factor_port.get_latest_report(code))
 
-        print('Initialization Finished')
+        # print('Initialization Finished')
 
         for ann_date in ann_date_container:
             ipos, eff_date = func.send(ann_date)
@@ -171,8 +171,27 @@ class CashflowDataPort(object):
         return '\'' + '\',\''.join(code_range) + '\''
 
     def _factor2str(self, factor):
-        if factor == 'operating_cashflow':
+        if factor == 'operating_cashflow': # 经营活动现金流
             return 'NET_CASH_FLOWS_OPER_ACT'
+        elif factor == 'operating_cashinflow': # 经营活动现金流入
+            return 'STOT_CASH_INFLOWS_OPER_ACT'
+        elif factor == 'operating_cashoutflow': # 经营活动现金流出
+            return 'STOT_CASH_OUTFLOWS_OPER_ACT'
+        elif factor == 'investment_cashinflow': # 投资活动现金流入
+            return 'STOT_CASH_INFLOWS_INV_ACT'
+        elif factor == 'investment_cashoutflow': # 投资活动现金流出
+            return 'STOT_CASH_OUTFLOWS_INV_ACT'
+        elif factor == 'investment_cashflow': # 投资活动现金流量净额
+            return 'NET_CASH_FLOWS_INV_ACT'
+        elif factor == 'finance_cashinflow': # 筹资活动现金流入
+            return 'STOT_CASH_INFLOWS_FNC_ACT'
+        elif factor == 'finance_cashoutflow': # 筹资活动现金流出
+            return 'STOT_CASH_OUTFLOWS_FNC_ACT'
+        elif factor == 'finance_cashflow': # 筹资活动现金流量净额
+            return 'NET_CASH_FLOWS_FNC_ACT'
+
+
+
 
     def _generate_season_table(self, min_date, max_date):
         d0 = self._nearby_season_month(min_date, -1)
