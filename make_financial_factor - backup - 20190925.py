@@ -113,22 +113,15 @@ def make_financial_factor(start_date, end_date, factor, test_mode=False):
     cashflow_statement = CashflowDataPort()
     i = 0
     factor_df = pd.DataFrame(columns=[factor, "ticker"])
-    if factor in ["net_income", "total_revenue",
-                "revenue", "total_opcost", "operating_cost", "sale_expense",
-                "management_expense", "research_expense", "financial_expense", "operating_profit"]:
+    if factor == "net_income" or factor == "total_revenue":
         dataPort = income_statement
         factor_method = "ttm"
     elif factor in ['total_assets', 'total_equities_exc_min', 'total_equities_inc_min',
                     'noncur_liabilities', 'total_liabilities',
-                    'longterm_loan', 'bonds_payable', 'longterm_payable', 'preferred_stock',
-                    "cash", "tradable_financialasset", "notes_receiveable", "accounts_receivable",
-                    "inventory", "fixed_asset", "construction_inprogress", "intangible_asset",
-                    "development_expenditure", "goodwill", "notes_payable", "accounts_payable"]:
+                    'longterm_loan', 'bonds_payable', 'longterm_payable', 'preferred_stock']:
         dataPort = balance_sheet
         factor_method = "latest"
-    elif factor in ["operating_cashflow",
-                    "operating_cashinflow", "operating_cashoutflow", "investment_cashinflow", "investment_cashoutflow",
-                    "investment_cashflow", "finance_cashinflow", "finance_cashoutflow", "finance_cashflow"]:
+    elif factor == "operating_cashflow":
         dataPort = cashflow_statement
         factor_method = "ttm"
     for _, record in all_available_stocks.iterrows():
@@ -137,6 +130,7 @@ def make_financial_factor(start_date, end_date, factor, test_mode=False):
                 continue
             codes = [record["S_INFO_WINDCODE"], ]
             date_range = dataPort.calendar(record["start_dt"], record["end_dt"])
+            # print(codes, date_range)
             factor_values, snapshots, _, _ = dataPort.raw(codes, date_range, factor, factor_method=factor_method)
             df = pd.DataFrame(index=factor_values.index)
             df[factor] = factor_values.iloc[:, 0]
@@ -144,7 +138,7 @@ def make_financial_factor(start_date, end_date, factor, test_mode=False):
             df["ticker"] = codes[0]
             factor_df = factor_df.append(df)
             i += 1
-            print('\rMaking financial factor ' + str(i), end= " ")
+            print(i)
         except Exception as e:
             print(codes)
             print(date_range)
@@ -152,12 +146,7 @@ def make_financial_factor(start_date, end_date, factor, test_mode=False):
     factor_df["tradeday"] = factor_df.index
     factor_df.index = range(factor_df.shape[0])
     factor_df = factor_df[["tradeday", "ticker", factor, factor + "_snapshots"]]
-    if factor in ["longterm_loan", "bonds_payable", "longterm_payable", "preferred_stock",
-                  "cash", "tradable_financialasset", "notes_receiveable", "accounts_receivable",
-                  "inventory", "fixed_asset", "construction_inprogress", "intangible_asset",
-                  "development_expenditure", "goodwill", "notes_payable", "accounts_payable",
-                  "revenue", "total_opcost", "operating_cost", "sale_expense",
-                  "management_expense", "research_expense", "financial_expense", "operating_profit"]:
+    if factor in ["longterm_loan", "bonds_payable", "longterm_payable", "preferred_stock"]:
         # In this circumstance, None or NaN mean not missing but 0 in the financial statements
         print("fill out NaN and None")
         factor_df[factor] = factor_df[factor].apply(lambda x: 0 if pd.isna(x) else x)

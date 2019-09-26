@@ -55,4 +55,17 @@ if __name__ == "__main__":
     for factor in ["cash", "tradable_financialasset", "notes_receiveable", "accounts_receivable",
                   "inventory", "fixed_asset", "construction_inprogress", "intangible_asset",
                   "development_expenditure", "goodwill", "notes_payable", "accounts_payable"]:
+        tic = dt.datetime.now()
         add_one_factor(factor, "basic_balance", start_date, end_date, test_mode=test_mode)
+        toc = dt.datetime.now()
+        print(factor + "cost time: ", toc - tic)
+
+
+
+
+    for factor in ["revenue", "total_opcost", "operating_cost", "sale_expense",
+                  "management_expense", "research_expense", "financial_expense", "operating_profit"]:
+        tic = dt.datetime.now()
+        add_one_factor(factor, "basic_income", start_date, end_date, test_mode=test_mode)
+        toc = dt.datetime.now()
+        print(factor + "cost time: ", toc - tic)
